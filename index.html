@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+
+    <title>Pokemon Explorer</title>
+
+    <script>
+
+      function processPokemonList(list) {
+
+        document.getElementById('pokemonList').style.display = 'block'; // show
+        document.getElementById('pokemonLoading').style.display = 'none'; // hide
+
+        let pokemonList = document.getElementById('pokemonList');
+
+        for (let p of list.results) {
+          let option = document.createElement('option');
+          option.value = p.url;
+          option.text = p.name;
+          pokemonList.appendChild(option);
+        }
+
+      }
+
+      function processChoice(event) {
+
+          document.getElementById('pokemonLoading').style.display = 'block'; // show
+          document.getElementById('pokemonInfo').style.display = 'none'; // hide
+          document.getElementById('pokemonSprite').src = '';
+
+          let selectedURL = document.getElementById('pokemonList').value;
+
+          fetch(selectedURL)
+            .then(response => response.json())
+            .then(data => processPokemon(data));
+
+
+      }
+
+      function processPokemon(pokemonData) {
+
+        document.getElementById('pokemonLoading').style.display = 'none'; // hide
+        document.getElementById('pokemonInfo').style.display = 'block'; // show'
+
+          console.log(pokemonData);
+
+          document.getElementById('pokemonName').innerHTML = pokemonData.name;
+
+          document.getElementById('pokemonSprite').src = pokemonData.sprites.front_default;
+
+          let types = '';
+          for (let t of pokemonData.types) {
+              types += `<span class="badge badge-primary mr-2">${t.type.name}</span>`;
+          }
+          document.getElementById('pokemonTypes').innerHTML = types;
+
+      }
+
+      function pageLoad() {
+
+          document.getElementById('pokemonList').style.display = 'none'; // hide
+          document.getElementById('pokemonInfo').style.display = 'none'; // hide
+
+          fetch('https://pokeapi.co/api/v2/pokemon?limit=1000')
+            .then(response => response.json())
+            .then(list => processPokemonList(list));
+
+          document.getElementById('pokemonList').addEventListener('change', event => processChoice(event));
+
+      }
+
+    </script>
+
+  </head>
+  <body class="bg-dark" onload="pageLoad()">
+
+    <div class="container bg-white p-4 text-center">
+
+      <h1>Pokemon Explorer</h1>
+
+      <div class="form-group">
+        <select id="pokemonList" class="form-control"></select>
+      </div>
+
+      <div id="pokemonInfo">
+        <h3 id="pokemonName" class="text-uppercase"></h3>
+        <img id="pokemonSprite" src="">
+        <div id="pokemonTypes"></div>
+      </div>
+
+    <div>
+
+    <div id="pokemonLoading">Loading...</div>
+
+  </body>
+</html>
